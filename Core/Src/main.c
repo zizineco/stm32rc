@@ -165,12 +165,12 @@ int main(void)
 				if (led_blink_en)
 					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
 
-				text_lenth = snprintf((char*)text, sizeof(text),
-						"20%02d.%02d.%02d %02d:%02d:%02d adc:%04d\r\n",
-						sdatestructureget.Year, sdatestructureget.Month,
-						sdatestructureget.Date, stimestructureget.Hours,
-						stimestructureget.Minutes, stimestructureget.Seconds,
-						adc_inp);
+//				text_lenth = snprintf((char*)text, sizeof(text),
+//						"20%02d.%02d.%02d %02d:%02d:%02d adc:%04d\r\n",
+//						sdatestructureget.Year, sdatestructureget.Month,
+//						sdatestructureget.Date, stimestructureget.Hours,
+//						stimestructureget.Minutes, stimestructureget.Seconds,
+//						adc_inp);
 
 				//CDC_Transmit_FS(text, text_lenth);
 				HAL_GPIO_WritePin(STANDBY_GPIO_Port, STANDBY_Pin, GPIO_PIN_SET);
@@ -195,8 +195,8 @@ int main(void)
 				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, A_speed);
 				__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, B_speed);
 
-				if (Notification_Status)
-					P2PS_STM_App_Update_Char(P2P_NOTIFY_CHAR_UUID, text);
+//				if (Notification_Status)
+//					P2PS_STM_App_Update_Char(P2P_NOTIFY_CHAR_UUID, text);
 //			} else {
 //				HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
 //			}

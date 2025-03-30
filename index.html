@@ -128,7 +128,7 @@
     // デバウンス用タイマーID
     let writeTimeoutId = null;
     // デバウンスの待ち時間 (例:200ms)
-    const DEBOUNCE_MS = 16;
+    const DEBOUNCE_MS = 100;
 
     // -------------------------------------------
     // 接続処理 (acceptAllDevices + optionalServices)
@@ -227,7 +227,7 @@
       ]);
 
       try {
-        await beltCharacteristic.writeValue(data);
+        await beltCharacteristic.writeValueWithoutResponse(data);
         console.log('書き込み成功:', data);
       } catch (error) {
         console.error('書き込みエラー:', error);
