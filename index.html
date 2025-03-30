@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BLE Belt Conveyor Controller (Debounce, acceptAllDevices)</title>
+  <title>BLE Belt Conveyor Controller (デバウンス, acceptAllDevices)</title>
   <style>
     body {
       font-family: sans-serif;
@@ -20,33 +20,56 @@
     h1, h2 {
       margin-bottom: 0.5rem;
     }
+    /* スライダー全体を画面幅いっぱい使い、さらに太くする */
     .slider-container {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      margin-bottom: 1rem;
     }
     .slider-container label {
-      margin-right: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .slider-container span {
+      margin-top: 0.5rem;
     }
     input[type="range"] {
-      flex: 1;
-      margin: 0 1rem;
+      -webkit-appearance: none;
+      width: 100%;       /* 横幅いっぱい */
+      height: 24px;      /* スライダートラックをより太く */
+      border-radius: 12px;
+      background: #ddd;  /* トラック部分の色 */
+      outline: none;
+      margin: 0;
+    }
+    /* Chrome, Safari, OperaなどWebKit系 */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 40px;       /* つまみ(親指)を大きく */
+      height: 40px;
+      border-radius: 50%;
+      background: #333;  /* つまみの色 */
+      cursor: pointer;
+      margin-top: -8px;  /* トラックとの位置を調整 */
+    }
+    /* FirefoxなどGecko系 */
+    input[type="range"]::-moz-range-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #333;
+      cursor: pointer;
     }
     @media (max-width: 480px) {
       body {
         font-size: 1.2rem;
       }
-      .slider-container {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .slider-container label {
-        margin-bottom: 0.5rem;
-      }
     }
   </style>
 </head>
 <body>
-  <h1>ベルトコンベア コントローラー (デバウンス, acceptAllDevices)</h1>
+  <h1>ベルトコンベア コントローラー (Debounce, acceptAllDevices)</h1>
 
   <!-- 接続ボタン -->
   <button id="connectButton">デバイスに接続</button>
@@ -67,7 +90,6 @@
       />
       <span id="rightValue">0</span>
     </div>
-    <p>中央 (0) で停止、上 (プラス) が前進、下 (マイナス) が後進</p>
   </section>
 
   <hr />
@@ -86,7 +108,6 @@
       />
       <span id="leftValue">0</span>
     </div>
-    <p>中央 (0) で停止、上 (プラス) が前進、下 (マイナス) が後進</p>
   </section>
 
   <script>
