@@ -118,8 +118,7 @@
         // acceptAllDevices: 全デバイススキャン
         // optionalServices にカスタムサービスUUIDを指定
         const device = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [SERVICE_UUID]
+          filters: [{ name: 'WeAct' }]
         });
 
         const server = await device.gatt.connect();

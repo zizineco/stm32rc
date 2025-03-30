@@ -184,11 +184,11 @@ int main(void)
 				}
 
 				if (B_dir == 0) {
-					HAL_GPIO_WritePin(IN_B1_GPIO_Port, IN_B1_Pin, GPIO_PIN_SET);
-					HAL_GPIO_WritePin(IN_B2_GPIO_Port, IN_B2_Pin, GPIO_PIN_RESET);
-				} else {
 					HAL_GPIO_WritePin(IN_B1_GPIO_Port, IN_B1_Pin, GPIO_PIN_RESET);
 					HAL_GPIO_WritePin(IN_B2_GPIO_Port, IN_B2_Pin, GPIO_PIN_SET);
+				} else {
+					HAL_GPIO_WritePin(IN_B1_GPIO_Port, IN_B1_Pin, GPIO_PIN_SET);
+					HAL_GPIO_WritePin(IN_B2_GPIO_Port, IN_B2_Pin, GPIO_PIN_RESET);
 				}
 
 				// "newDuty" は 0 ～ 255 で指定
