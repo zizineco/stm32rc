@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <!-- maximum-scale=1.0 と user-scalable=no を追加してピンチイン・アウトを禁止 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BLE Belt Conveyor Controller (デバウンス, acceptAllDevices)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 1rem;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 0.5rem 1rem;
+      margin: 1rem 0;
+    }
+    section {
+      margin-bottom: 2rem;
+    }
+    h1, h2 {
+      margin-bottom: 0.5rem;
+    }
+    /* スライダー全体を画面幅いっぱい使い、さらに太くする */
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    .slider-container label {
+      margin-bottom: 0.5rem;
+    }
+    .slider-container span {
+      margin-top: 0.5rem;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;       /* 横幅いっぱい */
+      height: 24px;      /* スライダートラックをより太く */
+      border-radius: 12px;
+      background: #ddd;  /* トラック部分の色 */
+      outline: none;
+      margin: 0;
+    }
+    /* Chrome, Safari, OperaなどWebKit系 */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 40px;       /* つまみ(親指)を大きく */
+      height: 40px;
+      border-radius: 50%;
+      background: #333;  /* つまみの色 */
+      cursor: pointer;
+      margin-top: -8px;  /* トラックとの位置を調整 */
+    }
+    /* FirefoxなどGecko系 */
+    input[type="range"]::-moz-range-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #333;
+      cursor: pointer;
+    }
+    @media (max-width: 480px) {
+      body {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 接続ボタン -->
+  <button id="connectButton">デバイスに接続</button>
+
+  <hr />
+
+  <!-- 右ベルトコンベア制御UI（スライダー中央がストップ） -->
+  <section>
+    <h2>右ベルトコンベア</h2>
+    <div class="slider-container">
+      <label for="rightSlider">速度・方向:</label>
+      <input
+        type="range"
+        id="rightSlider"
+        min="-100"
+        max="100"
+        value="0"
+      />
+      <span id="rightValue">0</span>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- 左ベルトコンベア制御UI（スライダー中央がストップ） -->
+  <section>
+    <h2>左ベルトコンベア</h2>
+    <div class="slider-container">
+      <label for="leftSlider">速度・方向:</label>
+      <input
+        type="range"
+        id="leftSlider"
+        min="-100"
+        max="100"
+        value="0"
+      />
+      <span id="leftValue">0</span>
+    </div>
+  </section>
+
+  <script>
+    // サービスUUID・キャラクタリスティックUUID (STM32WB向け: 128-bit)
+    //  0x00,0x00,0xfe,0x40,0xcc,0x7a,0x48,0x2a,0x98,0x4a,0x7f,0x2e,0xd5,0xb3,0xe5,0x8f
+    const SERVICE_UUID = '0000fe40-cc7a-482a-984a-7f2ed5b3e58f';
+    //  0x00,0x00,0xfe,0x42,0x8e,0x22,0x45,0x41,0x9d,0x4c,0x21,0xed,0xae,0x82,0xed,0x19
+    const CHARACTERISTIC_UUID = '0000fe41-8e22-4541-9d4c-21edae82ed19';
+
+    // 送信データ: [ 右方向, 右速度, 左方向, 左速度 ]
+    // 方向 (0:前進, 1:後進), 速度 (0~255)
+    let rightDirection = 0;
+    let rightSpeed = 0;
+    let leftDirection = 0;
+    let leftSpeed = 0;
+
+    let beltCharacteristic = null;
+
+    // デバウンス用タイマーID
+    let writeTimeoutId = null;
+    // デバウンスの待ち時間 (例:200ms)
+    const DEBOUNCE_MS = 10;
+
+    // -------------------------------------------
+    // 接続処理 (acceptAllDevices + optionalServices)
+    // -------------------------------------------
+    document.getElementById('connectButton').addEventListener('click', async () => {
+      try {
+        // acceptAllDevices: 全デバイススキャン
+        // optionalServices にカスタムサービスUUIDを指定
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ name: 'WeAct' }],
+          optionalServices: [SERVICE_UUID] 
+        });
+
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        beltCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+        console.log('BLE接続成功');
+      } catch (error) {
+        console.error('BLE接続エラー:', error);
+      }
+    });
+
+    // -------------------------------------------
+    // 右ベルトコンベア スライダー(デバウンス対象)
+    // -------------------------------------------
+    const rightSlider = document.getElementById('rightSlider');
+    const rightValueLabel = document.getElementById('rightValue');
+
+    rightSlider.addEventListener('input', () => {
+      const sliderVal = parseInt(rightSlider.value, 10);
+      rightValueLabel.textContent = sliderVal;
+
+      if (sliderVal === 0) {
+        rightDirection = 0; // 前進を仮定
+        rightSpeed = 0;     // 停止
+      } else if (sliderVal > 0) {
+        rightDirection = 0; // 前進
+        rightSpeed = mapTo255(sliderVal);
+      } else {
+        rightDirection = 1; // 後進
+        rightSpeed = mapTo255(Math.abs(sliderVal));
+      }
+
+      // デバウンスして書き込み
+      scheduleWrite();
+    });
+
+    // -------------------------------------------
+    // 左ベルトコンベア スライダー(デバウンス対象)
+    // -------------------------------------------
+    const leftSlider = document.getElementById('leftSlider');
+    const leftValueLabel = document.getElementById('leftValue');
+
+    leftSlider.addEventListener('input', () => {
+      const sliderVal = parseInt(leftSlider.value, 10);
+      leftValueLabel.textContent = sliderVal;
+
+      if (sliderVal === 0) {
+        leftDirection = 0;
+        leftSpeed = 0;
+      } else if (sliderVal > 0) {
+        leftDirection = 0; // 前進
+        leftSpeed = mapTo255(Math.abs(sliderVal));
+      } else {
+        leftDirection = 1; // 後進
+        leftSpeed = mapTo255(Math.abs(sliderVal));
+      }
+
+      // デバウンスして書き込み
+      scheduleWrite();
+    });
+
+    // -------------------------------------------
+    // デバウンス: 書き込みタイマーをセット/リセット
+    // -------------------------------------------
+    function scheduleWrite() {
+      clearTimeout(writeTimeoutId);
+      writeTimeoutId = setTimeout(() => {
+        doWrite();
+      }, DEBOUNCE_MS);
+    }
+
+    // -------------------------------------------
+    // 実際の書き込み処理
+    // -------------------------------------------
+    async function doWrite() {
+      if (!beltCharacteristic) return;
+
+      // 4バイト: [右方向, 右速度, 左方向, 左速度]
+      const data = new Uint8Array([
+        rightDirection,
+        rightSpeed,
+        leftDirection,
+        leftSpeed
+      ]);
+
+      try {
+        await beltCharacteristic.writeValueWithoutResponse(data);
+        console.log('書き込み成功:', data);
+      } catch (error) {
+        console.error('書き込みエラー:', error);
+      }
+    }
+
+    // -------------------------------------------
+    // 0~100 を 0~255 にマッピング
+    // -------------------------------------------
+    function mapTo255(value) {
+      return Math.min(255, Math.round((value / 100) * 255));
+    }
+  </script>
+</body>
+</html>
