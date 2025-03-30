@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "usbd_cdc_if.h"
+//#include "usbd_cdc_if.h"
 #include "ble.h"
 /* USER CODE END Includes */
 
@@ -117,9 +117,21 @@ int main(void)
 	
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
 	HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&adc_inp,1);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 	
 	extern uint8_t led_blink_en;
 	extern uint8_t Notification_Status;
+
+	extern uint8_t A_dir;
+	extern uint8_t A_speed;
+	extern uint8_t B_dir;
+	extern uint8_t B_speed;
+
+	HAL_GPIO_WritePin(IN_A1_GPIO_Port, IN_A1_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(IN_A2_GPIO_Port, IN_A2_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(IN_B1_GPIO_Port, IN_B1_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(IN_B2_GPIO_Port, IN_B2_Pin, GPIO_PIN_RESET);
   /* USER CODE END 2 */
 
   /* Init code for STM32_WPAN */
@@ -133,6 +145,7 @@ int main(void)
     MX_APPE_Process();
 
     /* USER CODE BEGIN 3 */
+
 		tick_now = HAL_GetTick();
 		if (tick_now >= tick) {
 			tick = tick_now + 500;
@@ -146,8 +159,8 @@ int main(void)
 			/* Get the RTC current Date */
 			HAL_RTC_GetDate(&hrtc, &sdatestructureget, RTC_FORMAT_BIN);
 
-			if (Seconds_o != stimestructureget.Minutes / 15) {
-				Seconds_o = stimestructureget.Minutes / 15;
+//			if (Seconds_o != stimestructureget.Seconds) {
+//				Seconds_o = stimestructureget.Seconds;
 
 				if (led_blink_en)
 					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
@@ -159,13 +172,34 @@ int main(void)
 						stimestructureget.Minutes, stimestructureget.Seconds,
 						adc_inp);
 
-				CDC_Transmit_FS(text, text_lenth);
+				//CDC_Transmit_FS(text, text_lenth);
+				HAL_GPIO_WritePin(STANDBY_GPIO_Port, STANDBY_Pin, GPIO_PIN_SET);
+
+				if (A_dir == 0) {
+					HAL_GPIO_WritePin(IN_A1_GPIO_Port, IN_A1_Pin, GPIO_PIN_SET);
+					HAL_GPIO_WritePin(IN_A2_GPIO_Port, IN_A2_Pin, GPIO_PIN_RESET);
+				} else {
+					HAL_GPIO_WritePin(IN_A1_GPIO_Port, IN_A1_Pin, GPIO_PIN_RESET);
+					HAL_GPIO_WritePin(IN_A2_GPIO_Port, IN_A2_Pin, GPIO_PIN_SET);
+				}
+
+				if (B_dir == 0) {
+					HAL_GPIO_WritePin(IN_B1_GPIO_Port, IN_B1_Pin, GPIO_PIN_SET);
+					HAL_GPIO_WritePin(IN_B2_GPIO_Port, IN_B2_Pin, GPIO_PIN_RESET);
+				} else {
+					HAL_GPIO_WritePin(IN_B1_GPIO_Port, IN_B1_Pin, GPIO_PIN_RESET);
+					HAL_GPIO_WritePin(IN_B2_GPIO_Port, IN_B2_Pin, GPIO_PIN_SET);
+				}
+
+				// "newDuty" は 0 ～ 255 で指定
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, A_speed);
+				__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, B_speed);
 
 				if (Notification_Status)
 					P2PS_STM_App_Update_Char(P2P_NOTIFY_CHAR_UUID, text);
-			} else {
-				HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
-			}
+//			} else {
+//				HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
+//			}
 		}	
 		
   }
