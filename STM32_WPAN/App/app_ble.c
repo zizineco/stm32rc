@@ -174,7 +174,7 @@ typedef struct
 /* Private defines -----------------------------------------------------------*/
 #define APPBLE_GAP_DEVICE_NAME_LENGTH 7
 #define FAST_ADV_TIMEOUT               (30*1000*1000/CFG_TS_TICK_VAL) /**< 30s */
-#define INITIAL_ADV_TIMEOUT            (60*1000*1000/CFG_TS_TICK_VAL) /**< 60s */
+#define INITIAL_ADV_TIMEOUT            (1000*60*1000*1000/CFG_TS_TICK_VAL) /**< 1000*60s */
 
 #define BD_ADDR_SIZE_LOCAL    6
 
