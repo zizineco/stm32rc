@@ -90,7 +90,7 @@ void P2PS_STM_App_Notification(P2PS_STM_App_Notification_evt_t *pNotification)
     case P2PS_STM_WRITE_EVT:
 /* USER CODE BEGIN P2PS_STM_WRITE_EVT */
 //		led_blink_en = pNotification->DataTransfered.pPayload[0];
-
+    	led_blink_en = led_blink_en == 0 ? 1 : 0;
 		A_dir = pNotification->DataTransfered.pPayload[0];
 		A_speed = pNotification->DataTransfered.pPayload[1];
 		B_dir = pNotification->DataTransfered.pPayload[2];

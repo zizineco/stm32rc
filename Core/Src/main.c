@@ -148,22 +148,24 @@ int main(void)
 
 		tick_now = HAL_GetTick();
 		if (tick_now >= tick) {
-			tick = tick_now + 500;
+			tick = tick_now + 1;
 
 			uint8_t text[128];
 			static uint8_t Seconds_o;
 			int text_lenth;
 
-			/* Get the RTC current Time */
-			HAL_RTC_GetTime(&hrtc, &stimestructureget, RTC_FORMAT_BIN);
-			/* Get the RTC current Date */
-			HAL_RTC_GetDate(&hrtc, &sdatestructureget, RTC_FORMAT_BIN);
+//			/* Get the RTC current Time */
+//			HAL_RTC_GetTime(&hrtc, &stimestructureget, RTC_FORMAT_BIN);
+//			/* Get the RTC current Date */
+//			HAL_RTC_GetDate(&hrtc, &sdatestructureget, RTC_FORMAT_BIN);
 
 //			if (Seconds_o != stimestructureget.Seconds) {
 //				Seconds_o = stimestructureget.Seconds;
 
 				if (led_blink_en)
 					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
+				else
+					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
 
 //				text_lenth = snprintf((char*)text, sizeof(text),
 //						"20%02d.%02d.%02d %02d:%02d:%02d adc:%04d\r\n",
