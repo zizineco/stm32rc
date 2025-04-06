@@ -174,7 +174,7 @@ typedef struct
 /* Private defines -----------------------------------------------------------*/
 #define APPBLE_GAP_DEVICE_NAME_LENGTH 7
 #define FAST_ADV_TIMEOUT               (30*1000*1000/CFG_TS_TICK_VAL) /**< 30s */
-#define INITIAL_ADV_TIMEOUT            (1000*60*1000*1000/CFG_TS_TICK_VAL) /**< 1000*60s */
+#define INITIAL_ADV_TIMEOUT            (60*1000*1000/CFG_TS_TICK_VAL) /**< 60s */
 
 #define BD_ADDR_SIZE_LOCAL    6
 
@@ -767,7 +767,8 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void *p_Pckt)
         break;
 
         /* USER CODE BEGIN BLUE_EVT */
-
+        default:
+        break;
         /* USER CODE END BLUE_EVT */
       }
       break; /* HCI_VENDOR_SPECIFIC_DEBUG_EVT_CODE */
@@ -1256,7 +1257,10 @@ static void Adv_Cancel(void)
   }
 
   /* USER CODE BEGIN Adv_Cancel_2 */
-
+  if (BleApplicationContext.Device_Connection_Status == APP_BLE_IDLE)
+  {
+	  Adv_Request(APP_BLE_LP_ADV);
+  }
   /* USER CODE END Adv_Cancel_2 */
 
   return;
