@@ -1,0 +1,28 @@
+@startuml
+title モーター制御シーケンス（スライダー操作）
+
+actor User
+participant "Web UI" as UI
+participant "Web Bluetooth API" as BLE_API
+participant "p2p_server_app.c" as P2PServer
+participant "main.c" as Main
+participant "Motor Controller" as MotorCtrl
+participant "GPIO/PWM" as Hardware
+
+User -> UI: 右スライダーを操作 (値: 50)
+UI -> UI: デバウンス処理 (10ms待機)
+UI -> UI: 値を変換\n(50 -> direction:0, speed:127)
+UI -> BLE_API: writeValueWithoutResponse([0, 127, leftDir, leftSpeed])
+BLE_API -> P2PServer: BLE Write Event
+P2PServer -> P2PServer: データ受信\nA_dir = 0\nA_speed = 127
+note right: STM32_WPAN/App/\np2p_server_app.c:94-97
+P2PServer -> Main: 変数更新通知
+Main -> Main: LoopMain() 実行
+Main -> MotorCtrl: 方向制御\nIN_A1=HIGH, IN_A2=LOW
+Main -> MotorCtrl: 速度制御\n__HAL_TIM_SET_COMPARE(htim1, CH3, 127)
+MotorCtrl -> Hardware: GPIO書き込み
+MotorCtrl -> Hardware: PWMデューティ比設定
+Hardware -> Hardware: モーター駆動
+Hardware --> User: ベルトコンベア動作
+
+@enduml

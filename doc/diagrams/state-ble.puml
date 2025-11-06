@@ -1,0 +1,26 @@
+@startuml
+title BLE接続状態遷移図
+
+[*] --> Disconnected: 電源投入
+
+Disconnected --> Advertising: アドバタイズ開始
+Advertising --> Connected: 接続要求受信
+Connected --> Disconnected: 切断
+
+Connected --> DataTransfer: Write要求受信
+DataTransfer --> Connected: データ処理完了
+
+Advertising --> Advertising: タイムアウト\n(再アドバタイズ)
+
+note right of Advertising
+  デバイス名: "WeAct"
+  Service UUID: 0000fe40-...
+end note
+
+note right of DataTransfer
+  4バイトデータ受信:
+  [rightDir, rightSpeed,
+   leftDir, leftSpeed]
+end note
+
+@enduml

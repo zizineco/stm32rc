@@ -1,0 +1,31 @@
+@startuml
+title デバイス接続シーケンス
+
+actor User
+participant "Web UI" as UI
+participant "Web Bluetooth API" as BLE_API
+participant "STM32 BLE Stack" as BLE_Stack
+participant "app_ble.c" as AppBLE
+participant "p2p_server_app.c" as P2PServer
+
+User -> UI: 「デバイスに接続」ボタンをクリック
+UI -> BLE_API: navigator.bluetooth.requestDevice()
+BLE_API -> BLE_Stack: デバイススキャン
+BLE_Stack --> BLE_API: デバイスリスト返却
+BLE_API --> UI: デバイス選択画面表示
+User -> UI: "WeAct"を選択
+UI -> BLE_API: device.gatt.connect()
+BLE_API -> BLE_Stack: GATT接続要求
+BLE_Stack -> AppBLE: 接続イベント通知
+AppBLE -> P2PServer: 接続完了通知
+P2PServer --> AppBLE: 初期化完了
+AppBLE --> BLE_Stack: 接続確立
+BLE_Stack --> BLE_API: 接続成功
+BLE_API -> BLE_Stack: getPrimaryService(SERVICE_UUID)
+BLE_Stack --> BLE_API: サービス返却
+BLE_API -> BLE_Stack: getCharacteristic(CHARACTERISTIC_UUID)
+BLE_Stack --> BLE_API: キャラクタリスティック返却
+BLE_API --> UI: 接続成功
+UI --> User: 制御可能状態
+
+@enduml

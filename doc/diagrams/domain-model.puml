@@ -1,0 +1,121 @@
+@startuml
+title ドメインモデル図
+
+package "Web UI Domain" {
+    class WebBrowserUI {
+        + connectButton: Button
+        + rightSlider: Slider
+        + leftSlider: Slider
+        + connect(): void
+        + updateSpeed(side: string, value: int): void
+    }
+
+    class BLEController {
+        - serviceUUID: string
+        - characteristicUUID: string
+        - beltCharacteristic: BluetoothCharacteristic
+        + connect(): Promise<void>
+        + sendCommand(data: Uint8Array): Promise<void>
+    }
+}
+
+package "BLE Protocol" {
+    class BLEService {
+        + serviceUUID: 0000fe40-cc7a-482a-984a-7f2ed5b3e58f
+        + deviceName: "WeAct"
+    }
+
+    class BLECharacteristic {
+        + characteristicUUID: 0000fe41-8e22-4541-9d4c-21edae82ed19
+        + properties: Write Without Response
+        + dataFormat: [rightDir, rightSpeed, leftDir, leftSpeed]
+    }
+}
+
+package "STM32 Application Domain" {
+    class P2PServerApp {
+        - A_dir: uint8_t
+        - A_speed: uint8_t
+        - B_dir: uint8_t
+        - B_speed: uint8_t
+        + handleWriteEvent(data: uint8_t[]): void
+        + updateMotorVariables(): void
+    }
+
+    class MotorController {
+        + updateDirection(motor: Motor, dir: Direction): void
+        + updateSpeed(motor: Motor, speed: uint8_t): void
+    }
+}
+
+package "Domain Entities" {
+    class BeltConveyor {
+        - side: Side
+        - motor: Motor
+        + setDirection(dir: Direction): void
+        + setSpeed(speed: uint8_t): void
+        + getStatus(): ConveyorStatus
+    }
+
+    class Motor {
+        - direction: Direction
+        - speed: uint8_t
+        - pwmChannel: PWMChannel
+        - directionPins: GPIOPins
+        + forward(): void
+        + backward(): void
+        + stop(): void
+        + setSpeed(speed: uint8_t): void
+    }
+
+    enum Direction {
+        FORWARD
+        BACKWARD
+    }
+
+    enum Side {
+        RIGHT
+        LEFT
+    }
+
+    class GPIOPins {
+        - in1: GPIOPin
+        - in2: GPIOPin
+        + setForward(): void
+        + setBackward(): void
+    }
+
+    class PWMChannel {
+        - timer: Timer
+        - channel: int
+        - dutyCycle: uint8_t
+        + setDutyCycle(value: uint8_t): void
+    }
+}
+
+package "Infrastructure" {
+    class GPIOHardware {
+        + writePin(port: Port, pin: Pin, state: State): void
+    }
+
+    class TimerHardware {
+        + setCompare(timer: Timer, channel: int, value: uint16_t): void
+    }
+}
+
+' Relationships
+WebBrowserUI --> BLEController: uses
+BLEController --> BLEService: connects to
+BLEService *-- BLECharacteristic: contains
+BLECharacteristic --> P2PServerApp: writes data to
+P2PServerApp --> MotorController: updates
+MotorController --> BeltConveyor: controls
+BeltConveyor *-- Motor: has
+Motor --> Direction: has
+Motor *-- GPIOPins: controls direction with
+Motor *-- PWMChannel: controls speed with
+BeltConveyor --> Side: identified by
+GPIOPins --> GPIOHardware: uses
+PWMChannel --> TimerHardware: uses
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+title モーター動作状態遷移図
+
+[*] --> Stopped: 初期化
+
+Stopped --> Forward: speed > 0, direction = 0
+Stopped --> Backward: speed > 0, direction = 1
+Forward --> Stopped: speed = 0
+Backward --> Stopped: speed = 0
+Forward --> Forward: speed変更 (direction = 0)
+Backward --> Backward: speed変更 (direction = 1)
+Forward --> Backward: direction = 1, speed > 0
+Backward --> Forward: direction = 0, speed > 0
+
+note right of Stopped
+  IN_X1: 任意
+  IN_X2: 任意
+  PWM: 0
+end note
+
+note right of Forward
+  IN_X1: HIGH
+  IN_X2: LOW
+  PWM: 0-255
+end note
+
+note right of Backward
+  IN_X1: LOW
+  IN_X2: HIGH
+  PWM: 0-255
+end note
+
+@enduml

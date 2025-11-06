@@ -1,0 +1,45 @@
+@startuml
+title レイヤーアーキテクチャ
+
+package "Presentation Layer" {
+    [index.html]
+    [Web Bluetooth API]
+}
+
+package "Communication Layer" {
+    [BLE GATT Protocol]
+    [STM32 BLE Stack]
+}
+
+package "Application Layer" {
+    [app_ble.c]
+    [p2p_server_app.c]
+    [app_entry.c]
+}
+
+package "Domain Layer" {
+    [Motor Control Logic]
+    [Belt Conveyor Control]
+}
+
+package "Infrastructure Layer" {
+    [GPIO HAL]
+    [Timer HAL]
+    [PWM Driver]
+    [STM32WB55 Hardware]
+}
+
+[index.html] --> [Web Bluetooth API]
+[Web Bluetooth API] --> [BLE GATT Protocol]
+[BLE GATT Protocol] --> [STM32 BLE Stack]
+[STM32 BLE Stack] --> [app_ble.c]
+[app_ble.c] --> [p2p_server_app.c]
+[p2p_server_app.c] --> [Motor Control Logic]
+[Motor Control Logic] --> [Belt Conveyor Control]
+[Belt Conveyor Control] --> [GPIO HAL]
+[Belt Conveyor Control] --> [Timer HAL]
+[GPIO HAL] --> [PWM Driver]
+[Timer HAL] --> [PWM Driver]
+[PWM Driver] --> [STM32WB55 Hardware]
+
+@enduml

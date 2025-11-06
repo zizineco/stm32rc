@@ -1,0 +1,19 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title システムコンテキスト図 - STM32RC BLE Belt Conveyor Controller
+
+Person(user, "ユーザー", "ベルトコンベアを操作したい人")
+System(webapp, "Web UI", "Web Bluetooth APIを使用した制御画面")
+System_Boundary(stm32_system, "STM32WB55システム") {
+    System(stm32, "STM32WB55", "BLE対応マイコン")
+}
+System(motorDriver, "モータードライバ", "TB6612FNGなど")
+System(conveyor, "ベルトコンベア", "左右2系統の搬送装置")
+
+Rel(user, webapp, "スライダー操作", "タッチ/マウス")
+Rel(webapp, stm32, "制御コマンド送信", "BLE")
+Rel(stm32, motorDriver, "PWM/GPIO信号", "電気信号")
+Rel(motorDriver, conveyor, "モーター駆動", "電力")
+
+@enduml

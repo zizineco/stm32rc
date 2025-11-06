@@ -1,0 +1,68 @@
+@startuml
+title データフローコンポーネント図
+
+component "Web Browser" as Browser {
+    [HTML UI] as HTML
+    [JavaScript] as JS
+    [Web Bluetooth API] as WebBLE
+}
+
+component "BLE Protocol" as BLEProto {
+    [GATT Profile] as GATT
+    [ATT Protocol] as ATT
+}
+
+component "STM32WB55" as STM32 {
+    component "BLE Stack" as BLEStack {
+        [Link Layer] as LL
+        [HCI] as HCI
+        [GATT Server] as GATTServer
+    }
+
+    component "Application" as App {
+        [P2P Server] as P2P
+        [Motor Control] as MotorCtrl
+    }
+
+    component "HAL" as HAL {
+        [GPIO Driver] as GPIODrv
+        [Timer Driver] as TimerDrv
+    }
+}
+
+component "Hardware" as HW {
+    [Motor Driver IC] as MotorDrv
+    [Belt Conveyor] as Belt
+}
+
+' Data flow
+HTML --> JS: User Input
+JS --> WebBLE: Control Command
+WebBLE -down-> GATT: BLE Write
+GATT -down-> ATT: ATT Request
+ATT -down-> GATTServer: Write Request
+GATTServer --> P2P: Characteristic Write
+P2P --> MotorCtrl: Update Variables
+MotorCtrl --> GPIODrv: Direction Control
+MotorCtrl --> TimerDrv: Speed Control (PWM)
+GPIODrv --> MotorDrv: GPIO Signals
+TimerDrv --> MotorDrv: PWM Signals
+MotorDrv --> Belt: Power
+
+note right of GATT
+  Service UUID:
+  0000fe40-cc7a-482a-
+  984a-7f2ed5b3e58f
+
+  Characteristic UUID:
+  0000fe41-8e22-4541-
+  9d4c-21edae82ed19
+end note
+
+note right of P2P
+  4 bytes data:
+  [rightDir, rightSpeed,
+   leftDir, leftSpeed]
+end note
+
+@enduml

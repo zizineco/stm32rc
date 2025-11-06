@@ -1,0 +1,54 @@
+@startuml
+title STM32アプリケーション コンポーネント図
+
+package "STM32_WPAN" {
+    [app_ble.c] as AppBLE
+    [p2p_server.c] as P2PServer_Service
+    [p2p_server_app.c] as P2PServer_App
+}
+
+package "Core" {
+    [main.c] as Main
+    [app_entry.c] as AppEntry
+    [gpio.c] as GPIO
+    [tim.c] as Timer
+}
+
+package "Drivers" {
+    [stm32wbxx_hal_gpio.c] as HAL_GPIO
+    [stm32wbxx_hal_tim.c] as HAL_TIM
+}
+
+package "Middlewares" {
+    [ble_stack] as BLE_Stack
+    [sequencer] as Sequencer
+}
+
+cloud "Hardware" {
+    [STM32WB55] as MCU
+}
+
+' Application flow
+AppEntry --> AppBLE: 初期化
+AppBLE --> P2PServer_Service: サービス登録
+AppBLE --> BLE_Stack: BLE初期化
+P2PServer_Service --> P2PServer_App: イベント通知
+P2PServer_App --> Main: 変数更新
+
+' Main loop
+Main --> GPIO: 方向制御
+Main --> Timer: 速度制御 (PWM)
+
+' HAL layer
+GPIO --> HAL_GPIO: HAL API
+Timer --> HAL_TIM: HAL API
+
+' Hardware
+HAL_GPIO --> MCU: レジスタ操作
+HAL_TIM --> MCU: レジスタ操作
+
+' BLE Stack
+BLE_Stack --> Sequencer: タスク管理
+Sequencer --> MCU: 無線制御
+
+@enduml

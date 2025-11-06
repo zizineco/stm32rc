@@ -1,0 +1,19 @@
+@startuml
+title 停止シーケンス
+
+actor User
+participant "Web UI" as UI
+participant "BLE" as BLE
+participant "STM32" as STM32
+participant "Motor" as Motor
+
+User -> UI: スライダーを中央(0)に移動
+UI -> UI: デバウンス (10ms)
+UI -> BLE: writeValue([0, 0, leftDir, leftSpeed])
+BLE -> STM32: データ受信
+STM32 -> STM32: A_speed = 0
+STM32 -> Motor: PWMデューティ比 = 0
+Motor -> Motor: モーター停止
+Motor --> User: ベルトコンベア停止
+
+@enduml

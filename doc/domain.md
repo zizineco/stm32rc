@@ -39,6 +39,8 @@ Rel(motorDriver, conveyor, "モーター駆動", "電力")
 @enduml
 ```
 
+![システムコンテキスト図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/context.puml)
+
 ---
 
 ## ドメインモデル図
@@ -169,6 +171,8 @@ PWMChannel --> TimerHardware: uses
 @enduml
 ```
 
+![ドメインモデル図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/domain-model.puml)
+
 ---
 
 ## レイヤーアーキテクチャ
@@ -223,6 +227,8 @@ package "Infrastructure Layer" {
 @enduml
 ```
 
+![レイヤーアーキテクチャ図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/layer-architecture.puml)
+
 ---
 
 ## シーケンス図
@@ -263,6 +269,8 @@ UI --> User: 制御可能状態
 @enduml
 ```
 
+![デバイス接続シーケンス図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/sequence-connection.puml)
+
 ### 2. モーター制御シーケンス
 
 ```plantuml
@@ -296,6 +304,8 @@ Hardware --> User: ベルトコンベア動作
 @enduml
 ```
 
+![モーター制御シーケンス図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/sequence-motor-control.puml)
+
 ### 3. 停止シーケンス
 
 ```plantuml
@@ -319,6 +329,8 @@ Motor --> User: ベルトコンベア停止
 
 @enduml
 ```
+
+![停止シーケンス図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/sequence-stop.puml)
 
 ---
 
@@ -354,6 +366,8 @@ end note
 
 @enduml
 ```
+
+![BLE接続状態遷移図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/state-ble.puml)
 
 ### モーター動作状態
 
@@ -392,6 +406,8 @@ end note
 
 @enduml
 ```
+
+![モーター動作状態遷移図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/state-motor.puml)
 
 ---
 
@@ -455,6 +471,8 @@ Sequencer --> MCU: 無線制御
 
 @enduml
 ```
+
+![STM32アプリケーション コンポーネント図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/component-stm32.puml)
 
 ### データフローコンポーネント
 
@@ -528,6 +546,8 @@ end note
 
 @enduml
 ```
+
+![データフローコンポーネント図](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/zizineco/stm32rc/claude/gum-dissolving-feature-011CUrnDysn79g8sZmzffeph/doc/diagrams/component-dataflow.puml)
 
 ---
 
